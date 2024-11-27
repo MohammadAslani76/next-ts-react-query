@@ -1,8 +1,8 @@
 import axios from "axios";
 
-export interface Company {
+export interface CompanyType {
     id : number;
-    title : string
+    name : string
 }
 
 export const fetchData = async () => {
@@ -15,12 +15,15 @@ export const fetchData = async () => {
     return response.data;
 }
 
-export const addData = async (sendData) => {
-    const response = await axios.post("http://localhost:4444/api/data",sendData,{
+export const addData = async (sendData: CompanyType) => {
+    if (!sendData.name || !sendData.id) {
+        throw new Error('Invalid company data');
+    }
+    const response = await axios.post("http://localhost:4444/api/data", sendData, {
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
         }
-    })
+    });
     return response.data;
 }

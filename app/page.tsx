@@ -1,47 +1,52 @@
 "use client"
 
 import {useQuery,useMutation,useQueryClient} from "@tanstack/react-query";
-import {addData, fetchData} from "@/server/apiFunctions";
-
-const queryClient = useQueryClient()
+import {addData, fetchData,CompanyType} from "@/server/apiFunctions";
 
 export default function Home() {
 
-    // const { isPending, error, data : companyNames } = useQuery({
-    //     queryKey : ['companyNames'],
-    //     queryFn: fetchData
-    // })
+    const queryClient = useQueryClient()
+
+    const { isLoading, error, data : companyNames } = useQuery<CompanyType[],Error>({
+        queryKey : ['companyNames'],
+        queryFn: fetchData
+    })
 
     const mutation = useMutation({
         mutationFn: addData,
         onSuccess : () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] })
+            queryClient.invalidateQueries({ queryKey: ['companyNames'] })
         }
     })
 
-    // if (isPending) return (
-    //     <div className="min-h-screen p-8">
-    //         Loading...
-    //     </div>
-    // )
-    //
-    // if (error) return (
-    //     <div className="min-h-screen p-8 text-red-500">
-    //         Error
-    //     </div>
-    // )
+    if (isLoading) return (
+        <div className="min-h-screen p-8">
+            Loading...
+        </div>
+    )
+    
+    if (error) return (
+        <div className="min-h-screen p-8 text-red-500">
+            Error {error.message}
+        </div>
+    )
 
     return (
         <div className="min-h-screen p-8">
-            <button className="bg-red-300 p-2 rounded"
-                    onClick={() => mutation.mutate({id: 5,name: "test"})}>
-                add
+            <button 
+                className={`p-2 rounded ${mutation.isPending ? 'bg-gray-300' : 'bg-red-300'}`}
+                disabled={mutation.isPending}
+                onClick={() => mutation.mutate({id: 6, name: "شرکت شش"})}>
+                {mutation.isPending ? 'Adding...' : 'Add'}
             </button>
-            {/*{*/}
-            {/*    companyNames?.map(company => (*/}
-            {/*        <p key={company.id}>{company.name}</p>*/}
-            {/*    ))*/}
-            {/*}*/}
+            {mutation.isError && (
+                <p className="text-red-500">Error adding company</p>
+            )}
+            {
+                companyNames?.map((company: { id: number; name: string }) => (
+                    <p key={company.id}>{company.name}</p>
+                ))
+            }
         </div>
     );
 }
