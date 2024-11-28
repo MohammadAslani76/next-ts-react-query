@@ -1,11 +1,12 @@
 "use client"
 
-import {useQuery,useMutation,useQueryClient} from "@tanstack/react-query";
+import {useQuery,useMutation,useQueryClient, QueryClient} from "@tanstack/react-query";
 import {addData, fetchData,CompanyType} from "@/server/apiFunctions";
+import Counter from "./components/counter";
 
 export default function Home() {
 
-    const queryClient = useQueryClient()
+    const queryClient : QueryClient = useQueryClient()
 
     const { isLoading, error, data : companyNames } = useQuery<CompanyType[],Error>({
         queryKey : ['companyNames'],
@@ -43,10 +44,11 @@ export default function Home() {
                 <p className="text-red-500">Error adding company</p>
             )}
             {
-                companyNames?.map((company: { id: number; name: string }) => (
+                companyNames?.map((company: CompanyType) => (
                     <p key={company.id}>{company.name}</p>
                 ))
             }
+            <Counter />
         </div>
     );
 }
